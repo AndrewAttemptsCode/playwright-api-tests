@@ -4,8 +4,7 @@ import tagData from "../test-data/tags.json";
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/tags", async (route) => {
     await route.fulfill({
-      contentType: "application/json",
-      body: JSON.stringify(tagData)
+      json: tagData,
     });
   });
 
