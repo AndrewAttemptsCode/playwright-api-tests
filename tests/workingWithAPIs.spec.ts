@@ -9,17 +9,17 @@ test.beforeEach(async ({ page }) => {
     });
   });
 
-  // Intercept articles api, modify latest article entry
-  await page.route("**/api/articles**", async (route) => {
-    const response = await route.fetch();
-    const data = await response.json();
-    data.articles[0].title = "New Title";
-    data.articles[0].description = "New description";
+  // // Intercept articles api, modify latest article entry
+  // await page.route("**/api/articles**", async (route) => {
+  //   const response = await route.fetch();
+  //   const data = await response.json();
+  //   data.articles[0].title = "New Title";
+  //   data.articles[0].description = "New description";
 
-    await route.fulfill({
-      json: data
-    });
-  });
+  //   await route.fulfill({
+  //     json: data
+  //   });
+  // });
 
   await page.goto("https://conduit.bondaracademy.com/");
 
@@ -33,6 +33,21 @@ test("has title", async ({ page }) => {
 });
 
 test("updates latest article title and description", async ({ page }) => {
+  // Intercept articles api, modify latest article entry
+  await page.route("**/api/articles**", async (route) => {
+    const response = await route.fetch();
+    const data = await response.json();
+    data.articles[0].title = "New Title";
+    data.articles[0].description = "New description";
+
+    await route.fulfill({
+      json: data
+    });
+  });
+  
+  // Refetch article list api with global feed click
+  await page.getByRole("listitem").filter({ hasText: /global feed/i }).click();
+
   await expect(page.locator("app-article-list").getByRole("heading", { name: /new title/i })).toBeVisible();
   await expect(page.locator("app-article-list")).toContainText(/new description/i);
 });
