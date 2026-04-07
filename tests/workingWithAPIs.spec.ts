@@ -1,5 +1,5 @@
 import { test, expect, request } from "@playwright/test";
-import tagData from "../test-data/tags.json";
+import tagData from "../test-data/tags.json" with { type: "json" };
 import "dotenv/config";
 
 const email = process.env.USER_EMAIL;
