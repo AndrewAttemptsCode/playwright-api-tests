@@ -109,3 +109,72 @@ test("delete article", async ({ page, request }) => {
   await globalFeed.click();
   await expect(articleItem).not.toBeVisible();
 });
+
+test("create article (ui) and delete article (api)", async ({ page, request }) => {
+  // Article tags
+  const tags = ["playwright", "automation", "ui"];
+
+  // Locate and click new article button from the navbar
+  await page.locator("nav").getByRole("listitem").filter({ hasText: /new article/i }).click();
+
+  // Fill article form fields
+  await page.locator("form").getByRole("textbox", { name: /article title/i }).fill("Title with UI action");
+  await page.locator("form").getByRole("textbox", { name: /article about/i }).fill("Using Playwright to automate ui form interactions");
+  await page.locator("form").getByRole("textbox", { name: /write your article/i }).fill("Playwright can be used to automate form fill workflows");
+  
+  // Iterate over each tag from tags list above
+  // Fill tag in the field, press enter key to apply tag
+  // Expect tag to be in the tag list
+  for (const tag of tags) {
+    const tagField = page.locator("form").getByRole("textbox", { name: /tags/i }); 
+    await tagField.fill(tag);
+    await page.keyboard.press("Enter");
+    await expect(page.locator(".tag-list")).toContainText(tag);
+  }
+  
+  // Click publish article button
+  await page.locator("form").getByRole("button", { name: /publish article/i }).click();
+
+  // Intercept post article api call to obtain response shape and data
+  const postResponse = await page.waitForResponse("https://conduit-api.bondaracademy.com/api/articles/");
+  const postResponseBody = await postResponse.json();
+  // Store article post slug to be used in delete article api call
+  const slugId = postResponseBody.article.slug;
+
+  // Expect to be auto navigated to the newly created article page
+  await expect(page.locator(".banner").getByRole("heading")).toHaveText(/title with ui action/i);
+
+  // Navigate back to articles list
+  await page.locator("nav").getByRole("listitem").filter({ hasText: /home/i }).click();
+
+  // Expect newly created article to be in the article list
+  await expect(page.locator("app-article-preview").filter({ has: page.getByRole("heading", { name: /title with ui action/i })})).toBeVisible();
+
+  // Obtain user access token in order to make delete api request
+  const loginResponse = await request.post("https://conduit-api.bondaracademy.com/api/users/login", {
+    data: {
+      "user": {
+        "email": email,
+        "password": password,
+      },
+    },
+  });
+
+  const data = await loginResponse.json();
+  const loginToken = data.user.token;
+  
+  // Delete article post with delete method api endpoint
+  const deleteResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`, {
+    headers: {
+      Authorization: `Token ${loginToken}`,
+    },
+  });
+
+  expect(deleteResponse.status()).toEqual(204);
+
+  // Refresh article list
+  await page.getByRole("listitem").filter({ hasText: /global feed/i }).click();
+
+  // Expect newly created article not to be in the article list
+  await expect(page.locator("app-article-preview").filter({ has: page.getByRole("heading", { name: /title with ui action/i })})).not.toBeVisible();
+});
