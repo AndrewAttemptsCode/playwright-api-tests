@@ -22,11 +22,7 @@ test.beforeEach(async ({ page }) => {
   // Assert to allow enough time for mock tags.json data to take effect
   await expect(page.locator(".sidebar .tag-pill")).toHaveCount(tagData.tags.length);
 
-  // Login to allow removal of articles
-  await page.getByRole("link", { name: /sign in/i }).click();
-  await page.getByRole("textbox", { name: /email/i }).fill(email);
-  await page.getByRole("textbox", { name: /password/i }).fill(password);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  
 });
 
 test("has title", async ({ page }) => {
