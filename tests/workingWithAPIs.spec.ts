@@ -10,24 +10,23 @@ if (!email || !password) {
 }
 
 test.beforeEach(async ({ page }) => {
-  // Intercept and mock tags api
+  await page.goto("https://conduit.bondaracademy.com/");
+});
+
+test("has title", async ({ page }) => {
+  await expect(page).toHaveTitle(/conduit/i);
+});
+
+test("mock tags api with updated tags", async ({ page }) => {
   await page.route("**/api/tags", async (route) => {
     await route.fulfill({
       json: tagData,
     });
   });
-
-  await page.goto("https://conduit.bondaracademy.com/");
-
-  // Assert to allow enough time for mock tags.json data to take effect
-  await expect(page.locator(".sidebar .tag-pill")).toHaveCount(tagData.tags.length);
-
   
-});
-
-test("has title", async ({ page }) => {
-  await expect(page).toHaveTitle(/conduit/i);
- 
+  // Assert tags have been updated with expected length
+  await expect(page.locator(".sidebar .tag-pill")).toHaveCount(tagData.tags.length);
+  
 });
 
 test("updates latest article title and description", async ({ page }) => {
@@ -37,15 +36,12 @@ test("updates latest article title and description", async ({ page }) => {
     const data = await response.json();
     data.articles[0].title = "New Title";
     data.articles[0].description = "New description";
-
+    
     await route.fulfill({
       json: data
     });
   });
-
-  // Refetch article list api with global feed click
-  await page.getByRole("listitem").filter({ hasText: /global feed/i }).click();
-
+  
   await expect(page.locator("app-article-list").getByRole("heading", { name: /new title/i })).toBeVisible();
   await expect(page.locator("app-article-list")).toContainText(/new description/i);
 });
