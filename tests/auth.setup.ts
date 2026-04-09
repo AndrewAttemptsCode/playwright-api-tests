@@ -12,7 +12,7 @@ if (!email || !password) {
 const authLoginFile = "playwright/.auth/user.json";
 const templatePath = "test-data/templateStorageState.json";
 
-setup("authentication", async ({ request }) => {
+setup("authentication", async ({ page, request }) => {
   // // Login and store via UI
   // await page.goto("https://conduit.bondaracademy.com");
   // await page.getByRole("link", { name: /sign in/i }).click();
@@ -20,9 +20,14 @@ setup("authentication", async ({ request }) => {
   // await page.getByRole("textbox", { name: /password/i }).fill(password);
   // await page.getByRole("button", { name: /sign in/i }).click();
 
+  // const loginResponse = await page.waitForResponse("https://conduit-api.bondaracademy.com/api/users/login");
+
   // await page.waitForURL("**/");
 
   // await page.context().storageState({ path: authLoginFile });
+
+  // const data = await loginResponse.json();
+  // const loginToken = data.user.token;
 
 
   // Login and store via API and fs
