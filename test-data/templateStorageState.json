@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "",
+      "localStorage": [
+        {
+          "name": "jwtToken",
+          "value": ""
+        }
+      ]
+    }
+  ]
+}
