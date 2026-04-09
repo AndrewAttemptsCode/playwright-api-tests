@@ -14,7 +14,7 @@ const templatePath = "test-data/templateStorageState.json";
 
 setup("authentication", async ({ request }) => {
   // // Login and store via UI
-  // await page.goto("https://conduit.bondaracademy.com/");
+  // await page.goto("https://conduit.bondaracademy.com");
   // await page.getByRole("link", { name: /sign in/i }).click();
   // await page.getByRole("textbox", { name: /email/i }).fill(email);
   // await page.getByRole("textbox", { name: /password/i }).fill(password);
@@ -24,7 +24,7 @@ setup("authentication", async ({ request }) => {
 
   // await page.context().storageState({ path: authLoginFile });
 
-  
+
   // Login and store via API and fs
   const loginResponse = await request.post("https://conduit-api.bondaracademy.com/api/users/login", {
     data: {
@@ -44,9 +44,13 @@ setup("authentication", async ({ request }) => {
   );
   
   // Assign origin url and login token to template
-  template.origins[0].origin = "https://conduit.bondaracademy.com/";
+  template.origins[0].origin = "https://conduit.bondaracademy.com";
   template.origins[0].localStorage[0].value = loginToken;
   
   // Save template changes to user.json within .auth
   fs.writeFileSync(authLoginFile, JSON.stringify(template, null, 2));
+
+  // Assign login token to env variable in memory
+  // to be applied to extraHTTPHeaders in playwright config
+  process.env.ACCESS_TOKEN = loginToken;
 });
