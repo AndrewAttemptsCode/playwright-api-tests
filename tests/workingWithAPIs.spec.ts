@@ -40,6 +40,8 @@ test("updates latest article title and description", async ({ page }) => {
 
 test("delete article", async ({ page, request }) => {
   // Request new article creation with post article api end point and token auth
+  // does not require manual header auth as its in
+  // the playwright global use extrahttpheaders object
   const postResponse = await request.post("https://conduit-api.bondaracademy.com/api/articles/", {
     data: {
       "article": {
@@ -117,6 +119,8 @@ test("create article (ui) and delete article (api)", async ({ page, request }) =
   await expect(page.locator("app-article-preview").filter({ has: page.getByRole("heading", { name: /title with ui action/i })})).toBeVisible();
 
   // Delete article post with delete method api endpoint
+  // does not require manual header auth as its in
+  // the playwright global use extrahttpheaders object
   const deleteResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`);
 
   expect(deleteResponse.status()).toEqual(204);
