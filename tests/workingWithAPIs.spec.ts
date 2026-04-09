@@ -1,13 +1,5 @@
 import { test, expect, request } from "@playwright/test";
 import tagData from "../test-data/tags.json" with { type: "json" };
-import "dotenv/config";
-
-const email = process.env.USER_EMAIL;
-const password = process.env.USER_PASSWORD;
-
-if (!email || !password) {
-  throw new Error("Missing environment variables");
-}
 
 test.beforeEach(async ({ page }) => {
   await page.goto("https://conduit.bondaracademy.com/");
@@ -47,21 +39,6 @@ test("updates latest article title and description", async ({ page }) => {
 });
 
 test("delete article", async ({ page, request }) => {
-  // Request log in using login api end point with email and pass
-  const response = await request.post("https://conduit-api.bondaracademy.com/api/users/login", {
-    data: {
-      "user": {
-        "email": email,
-        "password": password
-      }
-    }
-  });
-
-  // Receive response object 
-  const data = await response.json();
-  // Narrow and target account token
-  const token = data.user.token;
-
   // Request new article creation with post article api end point and token auth
   const postResponse = await request.post("https://conduit-api.bondaracademy.com/api/articles/", {
     data: {
@@ -70,10 +47,7 @@ test("delete article", async ({ page, request }) => {
         "description":"Article with article end point",
         "body":"This article was created by using the article end point",
         "tagList":["api", "playwright", "automation"]
-      }
-    },
-    headers: {
-      Authorization: `Token ${token}`,
+      },
     },
   });
 
@@ -142,25 +116,8 @@ test("create article (ui) and delete article (api)", async ({ page, request }) =
   // Expect newly created article to be in the article list
   await expect(page.locator("app-article-preview").filter({ has: page.getByRole("heading", { name: /title with ui action/i })})).toBeVisible();
 
-  // Obtain user access token in order to make delete api request
-  const loginResponse = await request.post("https://conduit-api.bondaracademy.com/api/users/login", {
-    data: {
-      "user": {
-        "email": email,
-        "password": password,
-      },
-    },
-  });
-
-  const data = await loginResponse.json();
-  const loginToken = data.user.token;
-  
   // Delete article post with delete method api endpoint
-  const deleteResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`, {
-    headers: {
-      Authorization: `Token ${loginToken}`,
-    },
-  });
+  const deleteResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`);
 
   expect(deleteResponse.status()).toEqual(204);
 
