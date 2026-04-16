@@ -1,5 +1,4 @@
 import { test as setup } from "@playwright/test";
-import "dotenv/config";
 import fs from "fs";
 
 const email = process.env.USER_EMAIL;
