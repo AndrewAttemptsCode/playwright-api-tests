@@ -7,6 +7,7 @@ import { defineConfig, devices } from '@playwright/test';
 // import dotenv from 'dotenv';
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
+import "dotenv/config";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -40,6 +41,22 @@ export default defineConfig({
     {
       name: 'auth-setup',
       testMatch: 'auth.setup.ts',
+    },
+    {
+      name: 'article-setup',
+      testMatch: 'createArticle.setup.ts',
+      dependencies: ['auth-setup'],
+      teardown: 'removeArticle',
+    },
+    {
+      name: 'removeArticle',
+      testMatch: 'removeArticle.setup.ts',
+    },
+    {
+      name: 'likesCounter',
+      testMatch: 'likesCounter.spec.ts',
+      use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/user.json' },
+      dependencies: ['article-setup'],
     },
     {
       name: 'chromium',
