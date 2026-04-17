@@ -35,6 +35,8 @@ export default defineConfig({
       Authorization: `Token ${process.env.ACCESS_TOKEN}`,
     },
   },
+  globalSetup: './global-setup.ts',
+  globalTeardown: './global-teardown.ts',
 
   /* Configure projects for major browsers */
   projects: [
@@ -59,22 +61,33 @@ export default defineConfig({
       dependencies: ['article-setup'],
     },
     {
-      name: 'chromium',
+      name: 'likesCounterGlobal',
+      testMatch: 'likesCounterGlobal.spec.ts',
+      use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/user.json' },
+    },
+    {
+      name: 'regression',
+      testIgnore: 'likesCounter.spec.ts',
       use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/user.json' },
       dependencies: ['auth-setup'],
     },
+    // {
+    //   name: 'chromium',
+    //   use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/user.json' },
+    //   dependencies: ['auth-setup'],
+    // },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'], storageState: 'playwright/.auth/user.json' },
-      dependencies: ['auth-setup'],
-    },
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'], storageState: 'playwright/.auth/user.json' },
+    //   dependencies: ['auth-setup'],
+    // },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'], storageState: 'playwright/.auth/user.json' },
-      dependencies: ['auth-setup'],
-    },
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'], storageState: 'playwright/.auth/user.json' },
+    //   dependencies: ['auth-setup'],
+    // },
 
     /* Test against mobile viewports. */
     // {
